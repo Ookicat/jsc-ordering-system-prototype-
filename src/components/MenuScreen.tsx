@@ -82,14 +82,16 @@ export function MenuScreen({ onAddToCart }: MenuScreenProps) {
   const incrementQuantity = (itemId: string) => {
     setQuantities(prev => ({
       ...prev,
-      [itemId]: (prev[itemId] || 0) + 1,
+      // If prev[itemId] is null/undefined, use 1, then add 1 (Result: 2)
+      [itemId]: (prev[itemId] ?? 1) + 1, 
     }));
   };
 
   const decrementQuantity = (itemId: string) => {
     setQuantities(prev => ({
       ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) - 1),
+      // If prev[itemId] is null/undefined, use 1, then subtract 1 (Result: 0)
+      [itemId]: Math.max(0, (prev[itemId] ?? 1) - 1),
     }));
   };
 
@@ -132,7 +134,8 @@ export function MenuScreen({ onAddToCart }: MenuScreenProps) {
       {/* Menu Items */}
       <div className="p-4 space-y-4">
         {filteredItems.map(item => {
-          const quantity = quantities[item.id] || 0;
+          // If quantity is undefined, show 1. Otherwise, show the actual quantity (even if it is 0)
+          const quantity = quantities[item.id] === undefined ? 1 : quantities[item.id];
           return (
             <div
               key={item.id}
