@@ -69,8 +69,16 @@ export default function App() {
     if (cart.length === 0) return;
     
     const total = cart.reduce((sum, item) => sum + item.menuItem.price * item.quantity, 0);
+    
+    // Generate auto-increment ID
+    const maxId = orders.reduce((max, order) => {
+      const idNum = parseInt(order.id);
+      return !isNaN(idNum) && idNum > max ? idNum : max;
+    }, 0);
+    const newId = (maxId + 1).toString();
+
     const newOrder: Order = {
-      id: `order-${Date.now()}`,
+      id: newId,
       items: [...cart],
       notes,
       total,

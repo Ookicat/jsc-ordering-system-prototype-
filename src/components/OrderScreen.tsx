@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Order } from '../App';
-import { Clock, Check, Package, StickyNote, X, AlertCircle, CreditCard } from 'lucide-react';
+import { Clock, Check, Package, StickyNote, X, AlertCircle, CreditCard, ArrowUpDown } from 'lucide-react';
 
 type OrderScreenProps = {
   orders: Order[];
@@ -10,9 +10,11 @@ type OrderScreenProps = {
 };
 
 type StatusFilter = 'all' | Order['status'];
+type SortOption = 'newest' | 'oldest' | 'price-asc' | 'price-desc' | 'table-asc' | 'table-desc';
 
 export function OrderScreen({ orders, onCancelOrder, onUpdateOrderStatus, onUpdateOrderPaymentStatus }: OrderScreenProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [paymentModalOrderId, setPaymentModalOrderId] = useState<string | null>(null);
@@ -61,6 +63,25 @@ export function OrderScreen({ orders, onCancelOrder, onUpdateOrderStatus, onUpda
   const filteredOrders = statusFilter === 'all' 
     ? orders 
     : orders.filter(order => order.status === statusFilter);
+
+  const sortedOrders = [...filteredOrders].sort((a, b) => {
+    switch (sortOption) {
+      case 'newest':
+        return b.date.getTime() - a.date.getTime();
+      case 'oldest':
+        return a.date.getTime() - b.date.getTime();
+      case 'price-asc':
+        return a.total - b.total;
+      case 'price-desc':
+        return b.total - a.total;
+      case 'table-asc':
+        return a.tableNumber - b.tableNumber;
+      case 'table-desc':
+        return b.tableNumber - a.tableNumber;
+      default:
+        return 0;
+    }
+  });
 
   const orderCounts = {
     all: orders.length,
@@ -126,15 +147,34 @@ export function OrderScreen({ orders, onCancelOrder, onUpdateOrderStatus, onUpda
         </div>
       </div>
 
+      {/* Sort Controls */}
+      <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex justify-end">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="w-4 h-4 text-gray-500" />
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            className="text-sm border-none bg-transparent text-gray-700 focus:ring-0 cursor-pointer outline-none"
+          >
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+            <option value="price-desc">Giá cao - thấp</option>
+            <option value="price-asc">Giá thấp - cao</option>
+            <option value="table-asc">Bàn 1 - 4</option>
+            <option value="table-desc">Bàn 4 - 1</option>
+          </select>
+        </div>
+      </div>
+
       {/* Orders List */}
       <div className="p-4 space-y-3">
-        {filteredOrders.length === 0 ? (
+        {sortedOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <AlertCircle className="w-12 h-12 text-gray-300 mb-2" />
             <p className="text-gray-400">Không có đơn hàng trong danh mục này</p>
           </div>
         ) : (
-          filteredOrders.map(order => {
+          sortedOrders.map(order => {
             const isExpanded = expandedOrderId === order.id;
             const isNoteExpanded = expandedNoteId === order.id;
 
