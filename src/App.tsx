@@ -7,7 +7,7 @@ export type MenuItem = {
   id: string;
   name: string;
   price: number;
-  category: 'food' | 'drink';
+  category: 'food' | 'drink' | 'service';
   image: string;
 };
 
@@ -23,6 +23,9 @@ export type Order = {
   notes: string;
   total: number;
   date: Date;
+  status: 'pending' | 'completed';
+  paymentStatus: 'paid' | 'unpaid';
+  tableNumber: number;
 };
 
 type Screen = 'menu' | 'cart' | 'orders';
@@ -62,7 +65,7 @@ export default function App() {
     );
   };
 
-  const createOrder = (notes: string) => {
+  const createOrder = (notes: string, paymentStatus: 'paid' | 'unpaid', tableNumber: number) => {
     if (cart.length === 0) return;
     
     const total = cart.reduce((sum, item) => sum + item.menuItem.price * item.quantity, 0);
@@ -72,6 +75,9 @@ export default function App() {
       notes,
       total,
       date: new Date(),
+      status: 'pending',
+      paymentStatus,
+      tableNumber,
     };
     
     setOrders(prevOrders => [newOrder, ...prevOrders]);
@@ -81,6 +87,22 @@ export default function App() {
 
   const cancelOrder = (orderId: string) => {
     setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+  };
+
+  const updateOrderStatus = (orderId: string, status: Order['status']) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, status } : order
+      )
+    );
+  };
+
+  const updateOrderPaymentStatus = (orderId: string, paymentStatus: Order['paymentStatus']) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, paymentStatus, status: 'completed' } : order
+      )
+    );
   };
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -109,6 +131,8 @@ export default function App() {
           <OrderScreen
             orders={orders}
             onCancelOrder={cancelOrder}
+            onUpdateOrderStatus={updateOrderStatus}
+            onUpdateOrderPaymentStatus={updateOrderPaymentStatus}
           />
         )}
       </main>

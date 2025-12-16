@@ -1,7 +1,7 @@
 
-  # Mobile Web App Screens
+  # JSC Ordering System
 
-  This is a code bundle for Mobile Web App Screens. The original project is available at https://www.figma.com/design/sV5NGrBuOd9VmZNBUzdM50/Mobile-Web-App-Screens.
+  This is a code bundle for JSC Ordering System. The original project is available at https://www.figma.com/design/sV5NGrBuOd9VmZNBUzdM50/JSC-Ordering-System.
 
   ## Running the code
 
